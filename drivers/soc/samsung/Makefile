@@ -74,3 +74,6 @@ obj-$(CONFIG_EXYNOS_PSTATE_HAFM_TB)	+= exynos-hafm-tb.o
 
 # secmem
 obj-$(CONFIG_ARCH_EXYNOS)       += secmem.o
+
+# state notifier
+obj-y	+= state_notifier.o
