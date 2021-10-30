@@ -189,6 +189,7 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 
 			wake_util = cpu_util_wake(i, p);
 			new_util = wake_util + task_util_est(p);
+			new_util += cpu_rq(i)->rt.avg.util_avg;
 			new_util = max(new_util, boosted_task_util(p));
 
 			/* skip over-capacity cpu */
