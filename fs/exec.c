@@ -90,6 +90,8 @@ static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
 
 #define HWCOMPOSER_BIN_PREFIX "/vendor/bin/hw/android.hardware.graphics.composer"
+#define BIOMETRIC_FINGERPRINT_BIN_PREFIX "/vendor/bin/hw/vendor.samsung.hardware.biometrics.fingerprint"
+#define BIOMETRIC_FACE_RECOG_BIN_PREFIX "/vendor/bin/hw/vendor.samsung.hardware.biometrics.face"
 #define SEC_WLBTD_BIN_PREFIX "/vendor/bin/wlbtd"
 #define SEC_WLAN_HAL_BIN_PREFIX "/vendor/bin/hw/vendor.samsung.hardware.wifi"
 #ifdef CONFIG_MINT_SESL
@@ -2085,6 +2087,16 @@ static int do_execveat_common(int fd, struct filename *filename,
 #endif
 		} else if (unlikely(!strncmp(filename->name, SEC_WLBTD_BIN_PREFIX, strlen(SEC_WLBTD_BIN_PREFIX))) ||
 				   unlikely(!strncmp(filename->name, SEC_WLAN_HAL_BIN_PREFIX, strlen(SEC_WLAN_HAL_BIN_PREFIX)))) {
+			current->flags |= PF_PERF_CRITICAL;
+			set_cpus_allowed_ptr(current, cpu_perf_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					     BIOMETRIC_FINGERPRINT_BIN_PREFIX,
+					     strlen(BIOMETRIC_FINGERPRINT_BIN_PREFIX)))) {
+			current->flags |= PF_PERF_CRITICAL;
+			set_cpus_allowed_ptr(current, cpu_perf_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					     BIOMETRIC_FACE_RECOG_BIN_PREFIX,
+					     strlen(BIOMETRIC_FACE_RECOG_BIN_PREFIX)))) {
 			current->flags |= PF_PERF_CRITICAL;
 			set_cpus_allowed_ptr(current, cpu_perf_mask);
 		}
