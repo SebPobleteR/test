@@ -48,15 +48,6 @@ ui_print("  Security Patch Level: " + file_getprop("/tmp/mint.prop", "ro.mint.dr
 package_extract_file("boot.img", file_getprop("/cache/fresh-tk_install", "block.boot"));
 sleep(5);
 
-# Also check if there is an existing Fresh install and install the props for update checking.
-run_program("/cache/tools/fresh-tk", "rom_version_check");
-ifelse(
-	file_getprop("/cache/fresh-tk_install", "system.exist.rom") == "true", (
-		package_extract_file("mint.prop", "/system_root/system/system_ext/fresh/mint.prop");
-		package_extract_file("mint.prop", "/system_ext/fresh/mint.prop");
-	 )
-);
-
 ui_print("- Mint installed successfully!");
 ui_print("   - Unmounting partitions.");
 ifelse(is_mounted(file_getprop("/cache/fresh-tk_install", "block.system.mount")), unmount(file_getprop("/cache/fresh-tk_install", "block.system.mount")));

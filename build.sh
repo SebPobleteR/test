@@ -333,10 +333,10 @@ build_package() {
 	fi
 
 	# Copy kernel image to package directory
-	mv ${ORIGIN_DIR}/tools/make/boot.img $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/boot.img -f
+	mv ${ORIGIN_DIR}/tools/make/boot.img $(pwd)/tools/make/package/boot.img -f
 
 	# Make the manifest
-	touch $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
+	touch $(pwd)/tools/make/package/mint.prop
 
 	echo "ro.mint.build.date=${BUILD_DATE}" > $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
 	echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" > $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
