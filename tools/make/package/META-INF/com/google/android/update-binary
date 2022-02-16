@@ -295,7 +295,7 @@ int2ver() {
   fi;
 }
 do_versioncheck() {
-  [ "$(file_getprop mint.sh supported.versions)" ] || return 1;
+  [ "$(file_getprop mint.prop ro.mint.droid.platform)" ] || return 1;
   local android_ver hi_ver lo_ver parsed_ver supported supported_ver;
   ui_print "  - Checking Android version...";
   supported_ver=$(file_getprop mint.prop ro.mint.droid.platform | $BB tr -d '[:space:]');
