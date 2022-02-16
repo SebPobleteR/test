@@ -299,7 +299,7 @@ do_versioncheck() {
   local android_ver hi_ver lo_ver parsed_ver supported supported_ver;
   ui_print "  - Checking Android version...";
   supported_ver=$(file_getprop mint.prop ro.mint.droid.platform | $BB tr -d '[:space:]');
-  android_ver=$(file_getprop /system/build.prop ro.build.version.release);
+  android_ver=$(file_getprop /vendor/build.prop ro.vendor.build.version.release);
   parsed_ver=$(int2ver $android_ver);
   if echo $supported_ver | $BB grep -q '-'; then
     lo_ver=$(int2ver "$(echo $supported_ver | $BB cut -d- -f1)");
@@ -318,7 +318,9 @@ do_versioncheck() {
   if [ "$supported" ]; then
     ui_print "    - Android $android_ver";
   else
-    abort "    - Unsupported Android version. Aborting...";
+    ui_print "    - Warning: Android version doesn't match supported version!";
+    ui_print "      Make sure you have downloaded the correct version of Mint.";
+    ui_print "      Proceeding to install...";
   fi;
 }
 do_levelcheck() {
