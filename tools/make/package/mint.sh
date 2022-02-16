@@ -52,7 +52,8 @@ if [ ! -z $oneui ]; then
 
 		# Disable SSWAP for RAM Plus and Pageboost
 		replace_string /vendor/etc/init/init.exynos9610.rc 'service swapon /system/bin/sswap -s -z -f 2048\n    class core\n    user system\n    group system\n    capabilities SYS_ADMIN\n    seclabel u:r:sswap:s0\n    oneshot\n    disabled' 'service swapon /system/bin/sswap -s -z -f 2048\n    class core\n    user system\n    group system\n    capabilities SYS_ADMIN\n    seclabel u:r:sswap:s0\n    oneshot' 'service swapon /system/bin/sswap -s -z -f 2048\n    class core\n    user system\n    group system\n    capabilities SYS_ADMIN\n    seclabel u:r:sswap:s0\n    oneshot\n    disabled'
-		insert_line /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' before '# tracking activation VNG' '# Pageboostd\non property:sys.boot_completed=1\n    start pageboostd\n\nservice pageboostd /system/bin/pageboostd\n    class main\n    user system\n    group system mount radio net_bt sdcard_rw shell media media_rw\n    socket pageboostd seqpacket 0660 system system\n    disabled\non property:sys.boot_completed=1\n    swapon_all /vendor/etc/fstab.sqzr'
+		insert_line /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' before '# tracking activation VNG' 'on property:sys.boot_completed=1\n    swapon_all /vendor/etc/fstab.sqzr'
+		insert_line /vendor/etc/init/init.exynos9610.rc 'start pageboostd' before '# tracking activation VNG' '# Pageboostd\non property:sys.boot_completed=1\n    start pageboostd\n\nservice pageboostd /system/bin/pageboostd\n    class main\n    user system\n    group system mount radio net_bt sdcard_rw shell media media_rw\n    socket pageboostd seqpacket 0660 system system\n    disabled\n'
 	fi
 fi
 
