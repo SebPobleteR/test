@@ -277,6 +277,45 @@ build_dtbo() {
 			"$(pwd)/arch/arm64/boot/config/exynos9610-${BUILD_DEVICE_NAME}.dtbo.config"
 }
 
+set_file_name() {
+if [[ ! -z ${BUILD_KERNEL_BRANCH} ]]; then
+
+	if [[ ${BUILD_KERNEL_BRANCH} == *"android-"* ]]; then
+		BUILD_KERNEL_BRANCH='mainline'
+	fi
+
+	if [[ ${BUILD_KERNEL_BRANCH} == "mainline" ]]; then
+		LOCALVERSION=" - Mint ${KERNEL_BUILD_VERSION}"
+		export LOCALVERSION=" - Mint ${KERNEL_BUILD_VERSION}"
+
+		if [[ ${BUILD_KERNEL_MAGISK} == 'true' ]]; then
+			FILE_OUTPUT=Mint-${KERNEL_BUILD_VERSION}_${BUILD_ANDROID_PLATFORM}_${FILE_KERNEL_CODE}_${BUILD_DEVICE_NAME^}_${BUILD_DATE}_CI.zip
+		else
+			FILE_OUTPUT=Mint-${KERNEL_BUILD_VERSION}_${BUILD_ANDROID_PLATFORM}_${FILE_KERNEL_CODE}-NoRoot_${BUILD_DEVICE_NAME^}_${BUILD_DATE}_CI.zip
+		fi
+	else
+		LOCALVERSION=" - Mint Beta (${BUILD_KERNEL_BRANCH})"
+		export LOCALVERSION=" - Mint Beta (${BUILD_KERNEL_BRANCH})"
+
+		if [[ ${BUILD_KERNEL_MAGISK} == 'true' ]]; then
+			FILE_OUTPUT=MintBeta-${BUILD_KERNEL_BRANCH}_${BUILD_ANDROID_PLATFORM}_${FILE_KERNEL_CODE}_${BUILD_DEVICE_NAME^}_${BUILD_DATE}_CI.zip
+		else
+			FILE_OUTPUT=MintBeta-${BUILD_KERNEL_BRANCH}_${BUILD_ANDROID_PLATFORM}_${FILE_KERNEL_CODE}-NoRoot_${BUILD_DEVICE_NAME^}_${BUILD_DATE}_CI.zip
+		fi
+	fi
+else
+	if [[ ${BUILD_KERNEL_MAGISK} == 'true' ]]; then
+		FILE_OUTPUT=Mint-${BUILD_DATE}_${FILE_KERNEL_CODE}-${BUILD_DEVICE_NAME^}_UB.zip
+	else
+		FILE_OUTPUT=Mint-${BUILD_DATE}_${FILE_KERNEL_CODE}-NoRoot_${BUILD_DEVICE_NAME^}_UB.zip
+	fi
+
+	BUILD_KERNEL_BRANCH='user'
+	LOCALVERSION=" - Mint-user"
+	export LOCALVERSION=" - Mint-user"
+fi
+}
+
 build_package() {
 	script_echo " "
 	script_echo "I: Building kernel ZIP..."
@@ -454,36 +493,7 @@ else
 	FILE_KERNEL_CODE='Recovery'
 fi
 
-if [[ ! -z ${BUILD_KERNEL_BRANCH} ]]; then
-
-	if [[ ${BUILD_KERNEL_BRANCH} == *"android-"* ]]; then
-		BUILD_KERNEL_BRANCH='mainline'
-	fi
-
-	if [[ ${BUILD_KERNEL_MAGISK} == 'true' ]]; then
-		FILE_OUTPUT=Mint-${KERNEL_BUILD_VERSION}_${BUILD_ANDROID_PLATFORM}_${FILE_KERNEL_CODE}_${BUILD_DEVICE_NAME^}_${BUILD_DATE}_CI.zip
-	else
-		FILE_OUTPUT=Mint-${KERNEL_BUILD_VERSION}_${BUILD_ANDROID_PLATFORM}_${FILE_KERNEL_CODE}-NoRoot_${BUILD_DEVICE_NAME^}_${BUILD_DATE}_CI.zip
-	fi
-
-	if [[ ${BUILD_KERNEL_BRANCH} == "mainline" ]]; then
-		LOCALVERSION=' - Mint'
-		export LOCALVERSION=' - Mint'
-	else
-		LOCALVERSION=" - Mint-${BUILD_KERNEL_BRANCH}"
-		export LOCALVERSION=" - Mint-${BUILD_KERNEL_BRANCH}"
-	fi
-else
-	if [[ ${BUILD_KERNEL_MAGISK} == 'true' ]]; then
-		FILE_OUTPUT=Mint-${BUILD_DATE}_${FILE_KERNEL_CODE}-${BUILD_DEVICE_NAME^}_UB.zip
-	else
-		FILE_OUTPUT=Mint-${BUILD_DATE}_${FILE_KERNEL_CODE}-NoRoot_${BUILD_DEVICE_NAME^}_UB.zip
-	fi
-
-	BUILD_KERNEL_BRANCH='user'
-	LOCALVERSION=" - Mint-user"
-	export LOCALVERSION=" - Mint-user"
-fi
+set_file_name
 
 if [[ ${BUILD_KERNEL_CODE} == 'recovery' ]]; then
 	BUILD_KERNEL_OUTPUT="${ORIGIN_DIR}/Image"
