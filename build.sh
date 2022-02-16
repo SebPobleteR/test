@@ -212,44 +212,6 @@ build_kernel() {
 	fi
 }
 
-build_image() {
-	if [[ -e "$(pwd)/arch/arm64/boot/Image" ]]; then
-		script_echo " "
-		script_echo "I: Building kernel image..."
-		script_echo "    Header/Page size: ${DEVICE_KERNEL_HEADER}/${DEVICE_KERNEL_PAGESIZE}"
-		script_echo "      Board and base: ${DEVICE_KERNEL_BOARD}/${DEVICE_KERNEL_BASE}"
-		script_echo " "
-		script_echo "     Android Version: ${PLATFORM_VERSION}"
-		script_echo "Security patch level: ${PLATFORM_PATCH_LEVEL}"
-
-		${ORIGIN_DIR}/tools/make/bin/mkbootimg \
-				  --kernel $(pwd)/arch/arm64/boot/Image \
-				  --cmdline " " --board "$DEVICE_KERNEL_BOARD" \
-				  --base $DEVICE_KERNEL_BASE --pagesize $DEVICE_KERNEL_PAGESIZE \
-				  --kernel_offset $DEVICE_KERNEL_OFFSET --ramdisk_offset $DEVICE_RAMDISK_OFFSET \
-				  --second_offset $DEVICE_SECOND_OFFSET --tags_offset $DEVICE_TAGS_OFFSET \
-				  --os_version "$PLATFORM_VERSION" --os_patch_level "$PLATFORM_PATCH_LEVEL" \
-				  --header_version $DEVICE_KERNEL_HEADER --hashtype $DEVICE_DTB_HASHTYPE \
-				  -o ${ORIGIN_DIR}/tools/make/boot.img
-
-		if [[ ! -f ${ORIGIN_DIR}/tools/make/boot.img ]]; then
-			script_echo " "
-			script_echo "E: Kernel image not built successfully!"
-			script_echo "   Errors can be fround from above."
-			sleep 3
-			exit_script
-		else
-			rm -f $(pwd)/arch/arm64/boot/Image
-		fi
-
-	else
-		script_echo "E: Image not built!"
-		script_echo "   Errors can be fround from above."
-		sleep 3
-		exit_script
-	fi
-}
-
 export_image() {
 	if [[ -e "$(pwd)/arch/arm64/boot/Image" ]]; then
 		script_echo " "
@@ -333,7 +295,7 @@ build_package() {
 	fi
 
 	# Copy kernel image to package directory
-	mv ${ORIGIN_DIR}/tools/make/boot.img $(pwd)/tools/make/package/boot.img -f
+	mv $(pwd)/arch/arm64/boot/Image $(pwd)/tools/make/package/Image -f
 
 	# Make the manifest
 	touch $(pwd)/tools/make/package/mint.prop
@@ -345,8 +307,15 @@ build_package() {
 	echo "ro.mint.build.host=${KBUILD_BUILD_HOST}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.device=${BUILD_DEVICE_NAME^}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.variant=${FILE_KERNEL_CODE^}" >> $(pwd)/tools/make/package/mint.prop
+
+	if [[ ${BUILD_KERNEL_BRANCH} == "mainline" ]]; then
+		echo "ro.mint.droid.beta=false" >> $(pwd)/tools/make/package/mint.prop
+	else
+		echo "ro.mint.droid.beta=true" >> $(pwd)/tools/make/package/mint.prop
+	fi
+	
 	echo "ro.mint.droid.spl=${PLATFORM_PATCH_LEVEL//-/}" >> $(pwd)/tools/make/package/mint.prop
-	echo "ro.mint.droid.platform=${PLATFORM_VERSION}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.droid.platform=${BUILD_ANDROID_PLATFORM}" >> $(pwd)/tools/make/package/mint.prop
 
 	cd $(pwd)/tools/make/package
 
@@ -586,7 +555,6 @@ build_kernel
 if [[ ${BUILD_KERNEL_CODE} == 'recovery' ]]; then
 	export_image 
 else
-	build_image
 	build_package
 fi
 
