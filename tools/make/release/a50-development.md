@@ -2,6 +2,8 @@
 
 ### Changelog
 
+**These are beta releases!** Please include logs **before** reporting.
+
 Changelog will be available shortly.
 
 #### Release Guide:
