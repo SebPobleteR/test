@@ -338,17 +338,17 @@ build_package() {
 	# Make the manifest
 	touch $(pwd)/tools/make/package/mint.prop
 
-	echo "ro.mint.build.date=${BUILD_DATE}" > $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" > $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.build.branch=${BUILD_KERNEL_BRANCH}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.build.user=${KBUILD_BUILD_USER}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.build.host=${KBUILD_BUILD_HOST}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.droid.device=${BUILD_DEVICE_NAME^}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.droid.variant=${FILE_KERNEL_CODE^}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.droid.spl=${PLATFORM_PATCH_LEVEL//-/}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
-	echo "ro.mint.droid.platform=${PLATFORM_VERSION}" >> $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}/mint.prop
+	echo "ro.mint.build.date=${BUILD_DATE}" > $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" > $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.build.branch=${BUILD_KERNEL_BRANCH}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.build.user=${KBUILD_BUILD_USER}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.build.host=${KBUILD_BUILD_HOST}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.droid.device=${BUILD_DEVICE_NAME^}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.droid.variant=${FILE_KERNEL_CODE^}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.droid.spl=${PLATFORM_PATCH_LEVEL//-/}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.droid.platform=${PLATFORM_VERSION}" >> $(pwd)/tools/make/package/mint.prop
 
-	cd $(pwd)/tools/make/package/${BUILD_PACKAGE_DIR}
+	cd $(pwd)/tools/make/package
 
 	zip -9 -r ./${FILE_OUTPUT} ./* 2>&1 | sed 's/^/     /'
 	mv ./${FILE_OUTPUT} ${BUILD_KERNEL_OUTPUT}
