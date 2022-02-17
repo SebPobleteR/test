@@ -433,6 +433,76 @@ do_modules() {
   cd $AKHOME;
 }
 
+do_modules_aosp() {
+  install_module_aosp=1
+  [ "$install_module_aosp" == 1 ] || return 1;
+  local block modcon moddir modtarget module slot umask;
+  if [ "$(file_getprop mint.sh do.systemless)" == 1 ]; then
+    cd $AKHOME/modules_aosp;
+    ui_print " " "Creating kernel helper Magisk module...";
+    if [ -d /data/adb/magisk -a -f $AKHOME/magisk_patched ]; then
+      umask=$(umask);
+      umask 022;
+      moddir=/data/adb/modules/ak3-helper;
+      $BB rm -rf $moddir;
+      $BB mkdir -p system $moddir;
+      ($BB mv -f product system;
+      $BB mv -f vendor system) 2>/dev/null;
+      $BB cp -rLf * $moddir;
+      dump_moduleinfo $moddir/module.prop;
+      dump_moduleremover $moddir/post-fs-data.sh;
+      $BB cp -f $AKHOME/vertmp $moddir/version;
+      umask $umask;
+    else
+      ui_print "Magisk installation not found. Skipped!";
+    fi;
+  else
+    cd $AKHOME/modules_aosp;
+    ui_print " - Pushing AOSP modules...";
+    if [ -d /dev/block/mapper ]; then
+      for block in system vendor product; do
+        for slot in "" _a _b; do
+          $BB blockdev --setrw /dev/block/mapper/$block$slot 2>/dev/null;
+        done;
+      done;
+    fi;
+    if [ ! -d /postinstall/tmp ]; then
+      $BB mount -o rw,remount -t auto /system;
+      ($BB mount -o rw,remount -t auto /vendor;
+      $BB mount -o rw,remount -t auto /product) 2>/dev/null;
+    fi;
+    for module in $($BB find . -name '*.ko'); do
+      modtarget=$POSTINSTALL$(echo $module | $BB cut -c2-);
+      if [ ! -e $modtarget ]; then
+        case $module in
+          */vendor/*) modcon=vendor;;
+          */product/*) modcon=product;;
+          *) modcon=system;;
+        esac;
+      fi;
+      if is_mounted $modtarget; then
+        $BB mount -o rw,remount -t auto $modtarget;
+      fi;
+      $BB mkdir -p $($BB dirname $modtarget);
+      $BB cp -rLf $module $modtarget;
+      $BB chown 0:0 $modtarget;
+      $BB chmod 644 $modtarget;
+      if [ "$modcon" ]; then
+        chcon "u:object_r:${modcon}_file:s0" $modtarget;
+      fi;
+      if is_mounted $modtarget; then
+        $BB mount -o ro,remount -t auto $modtarget;
+      fi;
+    done;
+    if [ ! -d /postinstall/tmp ]; then
+      $BB mount -o ro,remount -t auto /system;
+      ($BB mount -o ro,remount -t auto /vendor;
+      $BB mount -o ro,remount -t auto /product) 2>/dev/null;
+    fi;
+  fi;
+  cd $AKHOME;
+}
+
 do_modules_nf() {
   fresh=$(file_getprop "/system_root/system/system_ext/fresh.prop" "ro.fresh.maintainer")
   oneui=$(file_getprop "/system_root/system/build.prop" "ro.build.PDA")
@@ -446,7 +516,8 @@ do_modules_nf() {
 
   # Do NOT install modules if not One UI
   if [ -z $oneui ]; then
-    ui_print "- AOSP detected! Skip installing RAM Plus!";
+    ui_print "- AOSP detected! Installing modules to system_ext.";
+    do_modules_aosp
     install_module_nonfresh=0
   fi
 
