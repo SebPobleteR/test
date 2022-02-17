@@ -345,14 +345,22 @@ build_package() {
 
 	if [[ ${BUILD_KERNEL_BRANCH} == "mainline" ]]; then
 		echo "ro.mint.droid.beta=false" >> $(pwd)/tools/make/package/mint.prop
-		echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" > $(pwd)/tools/make/package/mint.prop
+		echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" >> $(pwd)/tools/make/package/mint.prop
 	else
 		echo "ro.mint.droid.beta=true" >> $(pwd)/tools/make/package/mint.prop
-		echo "ro.mint.build.version=${GITHUB_RUN_NUMBER}" > $(pwd)/tools/make/package/mint.prop
+		echo "ro.mint.build.version=${GITHUB_RUN_NUMBER}" >> $(pwd)/tools/make/package/mint.prop
 	fi
 	
 	echo "ro.mint.droid.android=${BUILD_ANDROID_PLATFORM}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.platform=11-${BUILD_ANDROID_PLATFORM}" >> $(pwd)/tools/make/package/mint.prop
+
+	# Device support
+	echo "ro.mint.device.name1=${BUILD_DEVICE_NAME}" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.device.name2=${BUILD_DEVICE_NAME}xx" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.device.name3=${BUILD_DEVICE_NAME}dd" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.device.name4=${BUILD_DEVICE_NAME}ser" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.device.name5=${BUILD_DEVICE_NAME}ltn" >> $(pwd)/tools/make/package/mint.prop
+	echo "ro.mint.device.name6=${BUILD_DEVICE_NAME}*" >> $(pwd)/tools/make/package/mint.prop
 
 	cd $(pwd)/tools/make/package
 
