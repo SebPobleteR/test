@@ -54,6 +54,13 @@ jobs:
       run: |
           cp .config ./release/kernel_config_a50.txt
 
+    - name: Upload kernel image artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: One UI Kernel Image
+        path: 'tools/make/boot.img'
+        if-no-files-found: error
+
     - name: Upload build config artifact
       uses: actions/upload-artifact@v2
       with:
