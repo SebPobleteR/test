@@ -10,11 +10,6 @@ do.modulenf=1
 do.systemless=0
 do.cleanup=1
 do.cleanuponabort=0
-device.name1=a50
-device.name2=a50dd
-device.name3=a50xx
-device.name4=a50*
-device.name5=
 supported.patchlevels=2021-04 - 
 '; } # end properties
 
