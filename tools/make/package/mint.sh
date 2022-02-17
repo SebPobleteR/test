@@ -55,6 +55,13 @@ if [ ! -z $oneui ]; then
 		insert_line /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' before '# tracking activation VNG' 'on property:sys.boot_completed=1\n    swapon_all /vendor/etc/fstab.sqzr'
 		insert_line /vendor/etc/init/init.exynos9610.rc 'start pageboostd' before '# tracking activation VNG' '# Pageboostd\non property:sys.boot_completed=1\n    start pageboostd\n\nservice pageboostd /system/bin/pageboostd\n    class main\n    user system\n    group system mount radio net_bt sdcard_rw shell media media_rw\n    socket pageboostd seqpacket 0660 system system\n    disabled\n'
 	fi
+else
+	ui_print "  - Enabling native ZRAM writeback for AOSP ROM"
+	patch_prop /system_root/system/build.prop 'ro.zram.mark_idle_delay_mins' '60'
+	patch_prop /system_root/system/build.prop 'ro.zram.first_wb_delay_mins' '1440'
+	patch_prop /system_root/system/build.prop 'ro.zram.periodic_wb_delay_hours' '24'
+
+	insert_line /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.zram' before '# sensorhub fw' 'on property:sys.boot_completed=1\n    swapon_all /vendor/etc/fstab.zram'
 fi
 
 flash_boot;
