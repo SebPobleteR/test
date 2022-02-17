@@ -41,7 +41,7 @@ jobs:
     - name: Prepare release package
       run: |
           mkdir -p ./release
-          mv -f `find ./ -iname MintBeta_*.zip` ./release/
+          mv -f `find ./ -iname MintBeta-*.zip` ./release/
 
     - name: Upload release package
       uses: actions/upload-artifact@v2
@@ -101,7 +101,7 @@ jobs:
     - name: Prepare release package
       run: |
           mkdir -p ./release
-          mv -f `find ./ -iname MintBeta_*.zip` ./release/
+          mv -f `find ./ -iname MintBeta-*.zip` ./release/
 
     - name: Upload release package
       uses: actions/upload-artifact@v2
@@ -154,7 +154,7 @@ jobs:
     - name: Prepare release package
       run: |
           mkdir -p ./release
-          mv -f `find ./ -iname MintBeta_*.zip` ./release/
+          mv -f `find ./ -iname MintBeta-*.zip` ./release/
 
     - name: Upload release package
       uses: actions/upload-artifact@v2
@@ -207,7 +207,7 @@ jobs:
     - name: Prepare release package
       run: |
           mkdir -p ./release
-          mv -f `find ./ -iname MintBeta_*.zip` ./release/
+          mv -f `find ./ -iname MintBeta-*.zip` ./release/
 
     - name: Upload release package
       uses: actions/upload-artifact@v2
@@ -260,7 +260,7 @@ jobs:
     - name: Prepare release package
       run: |
           mkdir -p ./release
-          mv -f `find ./ -iname MintBeta_*.zip` ./release/
+          mv -f `find ./ -iname MintBeta-*.zip` ./release/
 
     - name: Upload release package
       uses: actions/upload-artifact@v2
