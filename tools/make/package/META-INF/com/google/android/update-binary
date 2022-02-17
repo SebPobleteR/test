@@ -581,7 +581,7 @@ KERNEL_DEVICE="$(file_getprop mint.prop ro.mint.droid.device)";
 KERNEL_BETA="$(file_getprop mint.prop ro.mint.droid.beta)";
 
 if [ "$KERNEL_BETA" == 'true' ]; then
-  ui_print "- Installing Mint Kernel Beta [$KERNEL_BRANCH] for the Galaxy $KERNEL_DEVICE...";
+  ui_print "- Installing Mint Kernel Beta #${KERNEL_BUILD} for the Galaxy $KERNEL_DEVICE...";
 else
   ui_print "- Installing Mint Kernel $KERNEL_BUILD for the Galaxy $KERNEL_DEVICE...";
 fi
