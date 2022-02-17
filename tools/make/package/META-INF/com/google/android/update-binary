@@ -458,7 +458,7 @@ do_modules_aosp() {
     fi;
   else
     cd $AKHOME/modules_aosp;
-    ui_print " - Pushing AOSP modules...";
+    ui_print "     - Pushing AOSP modules...";
     if [ -d /dev/block/mapper ]; then
       for block in system vendor product; do
         for slot in "" _a _b; do
@@ -508,7 +508,7 @@ do_modules_nf() {
   oneui=$(file_getprop "/system_root/system/build.prop" "ro.build.PDA")
 
   if [ ! -z $fresh ]; then
-    ui_print "- Fresh ROM detected! Skip installing RAM Plus!";
+    ui_print "  - Fresh ROM detected! Skip installing RAM Plus!";
     install_module_nonfresh=0
   else
     install_module_nonfresh="$(file_getprop mint.sh do.modulenf)"
@@ -516,7 +516,7 @@ do_modules_nf() {
 
   # Do NOT install modules if not One UI
   if [ -z $oneui ]; then
-    ui_print "- AOSP detected! Installing modules to system_ext.";
+    ui_print "  - AOSP detected! Installing modules to system_ext.";
     do_modules_aosp
     install_module_nonfresh=0
   fi
@@ -544,7 +544,7 @@ do_modules_nf() {
     fi;
   else
     cd $AKHOME/modules_nf;
-    ui_print " - Pushing non-Fresh modules...";
+    ui_print "  - Pushing non-Fresh modules...";
     if [ -d /dev/block/mapper ]; then
       for block in system vendor product; do
         for slot in "" _a _b; do
@@ -652,7 +652,7 @@ KERNEL_DEVICE="$(file_getprop mint.prop ro.mint.droid.device)";
 KERNEL_BETA="$(file_getprop mint.prop ro.mint.droid.beta)";
 
 if [ "$KERNEL_BETA" == 'true' ]; then
-  ui_print "- Installing Mint Kernel Beta #${KERNEL_BUILD} for the Galaxy $KERNEL_DEVICE...";
+  ui_print "- Installing Mint Kernel Beta ${KERNEL_BUILD} for the Galaxy $KERNEL_DEVICE...";
 else
   ui_print "- Installing Mint Kernel $KERNEL_BUILD for the Galaxy $KERNEL_DEVICE...";
 fi
