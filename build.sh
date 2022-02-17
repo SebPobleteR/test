@@ -212,6 +212,42 @@ build_kernel() {
 	fi
 }
 
+build_image() {
+	if [[ -e "$(pwd)/arch/arm64/boot/Image" ]]; then
+		script_echo " "
+		script_echo "I: Building kernel image..."
+		script_echo "    Header/Page size: ${DEVICE_KERNEL_HEADER}/${DEVICE_KERNEL_PAGESIZE}"
+		script_echo "      Board and base: ${DEVICE_KERNEL_BOARD}/${DEVICE_KERNEL_BASE}"
+		script_echo " "
+		script_echo "     Android Version: ${PLATFORM_VERSION}"
+		script_echo "Security patch level: ${PLATFORM_PATCH_LEVEL}"
+
+		${ORIGIN_DIR}/tools/make/bin/mkbootimg \
+				  --kernel $(pwd)/arch/arm64/boot/Image \
+				  --cmdline " " --board "$DEVICE_KERNEL_BOARD" \
+				  --base $DEVICE_KERNEL_BASE --pagesize $DEVICE_KERNEL_PAGESIZE \
+				  --kernel_offset $DEVICE_KERNEL_OFFSET --ramdisk_offset $DEVICE_RAMDISK_OFFSET \
+				  --second_offset $DEVICE_SECOND_OFFSET --tags_offset $DEVICE_TAGS_OFFSET \
+				  --os_version "$PLATFORM_VERSION" --os_patch_level "$PLATFORM_PATCH_LEVEL" \
+				  --header_version $DEVICE_KERNEL_HEADER --hashtype $DEVICE_DTB_HASHTYPE \
+				  -o ${ORIGIN_DIR}/tools/make/boot.img
+
+		if [[ ! -f ${ORIGIN_DIR}/tools/make/boot.img ]]; then
+			script_echo " "
+			script_echo "E: Kernel image not built successfully!"
+			script_echo "   Errors can be fround from above."
+			sleep 3
+			exit_script
+		fi
+
+	else
+		script_echo "E: Image not built!"
+		script_echo "   Errors can be fround from above."
+		sleep 3
+		exit_script
+	fi
+}
+
 export_image() {
 	if [[ -e "$(pwd)/arch/arm64/boot/Image" ]]; then
 		script_echo " "
@@ -556,6 +592,7 @@ build_kernel
 if [[ ${BUILD_KERNEL_CODE} == 'recovery' ]]; then
 	export_image 
 else
+	build_image
 	build_package
 fi
 
