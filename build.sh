@@ -314,7 +314,6 @@ build_package() {
 		echo "ro.mint.droid.beta=true" >> $(pwd)/tools/make/package/mint.prop
 	fi
 	
-	echo "ro.mint.droid.spl=${PLATFORM_PATCH_LEVEL//-/}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.android=${BUILD_ANDROID_PLATFORM}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.platform=11-${BUILD_ANDROID_PLATFORM}" >> $(pwd)/tools/make/package/mint.prop
 

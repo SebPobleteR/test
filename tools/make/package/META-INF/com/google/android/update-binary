@@ -547,7 +547,6 @@ if [ $? != 0 -o -z "$(ls bin)" ]; then
 fi;
 
 KERNEL_VARIANT="$(file_getprop mint.prop ro.mint.droid.variant)";
-KERNEL_SPL="$(file_getprop mint.prop ro.mint.droid.spl)";
 KERNEL_BRANCH="$(file_getprop mint.prop ro.mint.build.branch)";
 KERNEL_ANDROID="$(file_getprop mint.prop ro.mint.droid.android)";
 
@@ -555,7 +554,6 @@ if [ -f banner ]; then
   ui_printfile banner;
   ui_print "          Mint variant: $KERNEL_VARIANT";
   ui_print "       Android version: Android $KERNEL_ANDROID";
-  ui_print "  Security Patch Level: $KERNEL_SPL";
   ui_print "           Base branch: $KERNEL_BRANCH";
   ui_print " ";
 fi;
