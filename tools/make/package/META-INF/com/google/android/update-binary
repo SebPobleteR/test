@@ -549,7 +549,7 @@ fi;
 KERNEL_VARIANT="$(file_getprop mint.prop ro.mint.droid.variant)";
 KERNEL_SPL="$(file_getprop mint.prop ro.mint.droid.spl)";
 KERNEL_BRANCH="$(file_getprop mint.prop ro.mint.build.branch)";
-KERNEL_ANDROID="$(file_getprop mint.prop ro.mint.droid.platform)";
+KERNEL_ANDROID="$(file_getprop mint.prop ro.mint.droid.android)";
 
 if [ -f banner ]; then
   ui_printfile banner;
