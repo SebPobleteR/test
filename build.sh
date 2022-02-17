@@ -301,7 +301,6 @@ build_package() {
 	touch $(pwd)/tools/make/package/mint.prop
 
 	echo "ro.mint.build.date=${BUILD_DATE}" > $(pwd)/tools/make/package/mint.prop
-	echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" > $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.build.branch=${BUILD_KERNEL_BRANCH}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.build.user=${KBUILD_BUILD_USER}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.build.host=${KBUILD_BUILD_HOST}" >> $(pwd)/tools/make/package/mint.prop
@@ -310,8 +309,10 @@ build_package() {
 
 	if [[ ${BUILD_KERNEL_BRANCH} == "mainline" ]]; then
 		echo "ro.mint.droid.beta=false" >> $(pwd)/tools/make/package/mint.prop
+		echo "ro.mint.build.version=${KERNEL_BUILD_VERSION}" > $(pwd)/tools/make/package/mint.prop
 	else
 		echo "ro.mint.droid.beta=true" >> $(pwd)/tools/make/package/mint.prop
+		echo "ro.mint.build.version=${GITHUB_RUN_NUMBER}" > $(pwd)/tools/make/package/mint.prop
 	fi
 	
 	echo "ro.mint.droid.android=${BUILD_ANDROID_PLATFORM}" >> $(pwd)/tools/make/package/mint.prop
