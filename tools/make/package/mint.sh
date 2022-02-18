@@ -38,6 +38,13 @@ mount -o rw,remount -t auto /vendor > /dev/null
 fresh=$(file_getprop "/system_root/system/system_ext/fresh.prop" "ro.fresh.maintainer")
 oneui=$(file_getprop "/system_root/system/build.prop" "ro.build.PDA")
 
+# Accomodate Exynos9611 devices' init.hardware.rc
+if [ -f "/vendor/etc/init/init.exynos9611.rc" ]; then
+	VENDOR_INIT_RC=/vendor/etc/init/init.exynos9611.rc
+else
+	VENDOR_INIT_RC=/vendor/etc/init/init.exynos9610.rc
+fi
+
 if [ ! -z $oneui ]; then
 	if [ -z $fresh ]; then
 		ui_print "  - One UI detected!"
@@ -61,12 +68,12 @@ if [ ! -z $oneui ]; then
 		chmod 644 /vendor/etc/fstab.sqzr
 
 		# Disable SSWAP for RAM Plus and Pageboost
-		remove_section /vendor/etc/init/init.exynos9610.rc 'service swapon /system/bin/sswap -s -z -f 2048' 'oneshot'
-		replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.sqzr' global
-		replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.model' 'swapon_all /vendor/etc/fstab.sqzr' global
-		replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' global
-		append_file /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' init.ramplus.rc
-		append_file /vendor/etc/init/init.exynos9610.rc 'start pageboostd' init.pageboost.rc
+		remove_section ${VENDOR_INIT_RC} 'service swapon /system/bin/sswap -s -z -f 2048' 'oneshot'
+		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.sqzr' global
+		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.model' 'swapon_all /vendor/etc/fstab.sqzr' global
+		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' global
+		append_file ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' init.ramplus.rc
+		append_file ${VENDOR_INIT_RC} 'start pageboostd' init.pageboost.rc
 	else
 		ui_print "  - FreshROMs detected! RAM Plus is already enabled!"
 	fi
@@ -84,9 +91,9 @@ else
 	patch_prop /vendor/build.prop 'ro.zram.mark_idle_delay_mins' '60'
 	patch_prop /vendor/build.prop 'ro.zram.first_wb_delay_mins' '1440'
 	patch_prop /vendor/build.prop 'ro.zram.periodic_wb_delay_hours' '24'
-	replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.zram' global
-	replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' global
-	append_file /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.zram' init.zram.rc
+	replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.zram' global
+	replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' global
+	append_file ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.zram' init.zram.rc
 fi
 
 umount /system
