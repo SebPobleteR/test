@@ -83,7 +83,7 @@ else
 	patch_prop /vendor/build.prop 'ro.zram.mark_idle_delay_mins' '60'
 	patch_prop /vendor/build.prop 'ro.zram.first_wb_delay_mins' '1440'
 	patch_prop /vendor/build.prop 'ro.zram.periodic_wb_delay_hours' '24'
-	replace_line /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.zram' global
+	replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.zram' global
 	append_file /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.zram' init.zram.rc
 fi
 
