@@ -464,12 +464,15 @@ fi;
 KERNEL_VARIANT="$(file_getprop mint.prop ro.mint.droid.variant)";
 KERNEL_BRANCH="$(file_getprop mint.prop ro.mint.build.branch)";
 KERNEL_ANDROID="$(file_getprop mint.prop ro.mint.droid.android)";
+KERNEL_BETA="$(file_getprop mint.prop ro.mint.droid.beta)";
 
 if [ -f banner ]; then
   ui_printfile banner;
   ui_print "          Mint variant: $KERNEL_VARIANT";
   ui_print "       Android version: Android $KERNEL_ANDROID";
-  ui_print "           Base branch: $KERNEL_BRANCH";
+  if [ "$KERNEL_BETA" == 'true' ]; then
+    ui_print "           Base branch: $KERNEL_BRANCH";
+  fi
   ui_print " ";
 fi;
 
@@ -493,7 +496,6 @@ do_levelcheck;
 
 KERNEL_BUILD="$(file_getprop mint.prop ro.mint.build.version)";
 KERNEL_DEVICE="$(file_getprop mint.prop ro.mint.droid.device)";
-KERNEL_BETA="$(file_getprop mint.prop ro.mint.droid.beta)";
 
 if [ "$KERNEL_BETA" == 'true' ]; then
   ui_print "- Installing Mint Kernel Beta ${KERNEL_BUILD} for the Galaxy $KERNEL_DEVICE...";
