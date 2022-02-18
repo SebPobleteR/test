@@ -62,6 +62,8 @@ if [ ! -z $oneui ]; then
 
 		# Disable SSWAP for RAM Plus and Pageboost
 		remove_section /vendor/etc/init/init.exynos9610.rc 'service swapon /system/bin/sswap -s -z -f 2048' 'oneshot'
+		replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.sqzr' global
+		replace_string /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.model' 'swapon_all /vendor/etc/fstab.sqzr' global
 		append_file /vendor/etc/init/init.exynos9610.rc 'swapon_all /vendor/etc/fstab.sqzr' init.ramplus.rc
 		append_file /vendor/etc/init/init.exynos9610.rc 'start pageboostd' init.pageboost.rc
 	else
