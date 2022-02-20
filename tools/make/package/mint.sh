@@ -69,9 +69,9 @@ if [ ! -z $oneui ]; then
 
 		# Disable SSWAP for RAM Plus and Pageboost
 		remove_section ${VENDOR_INIT_RC} 'service swapon /system/bin/sswap -s -z -f 2048' 'oneshot'
-		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.sqzr' global
-		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.model' 'swapon_all /vendor/etc/fstab.sqzr' global
-		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' global
+		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.dummy' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.sqzr' global
+		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.dummy' 'swapon_all /vendor/etc/fstab.model' 'swapon_all /vendor/etc/fstab.sqzr' global
+		replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.dummy' 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' global
 		append_file ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.sqzr' init.ramplus.rc
 		append_file ${VENDOR_INIT_RC} 'start pageboostd' init.pageboost.rc
 	else
@@ -91,8 +91,8 @@ else
 	patch_prop /vendor/build.prop 'ro.zram.mark_idle_delay_mins' '60'
 	patch_prop /vendor/build.prop 'ro.zram.first_wb_delay_mins' '1440'
 	patch_prop /vendor/build.prop 'ro.zram.periodic_wb_delay_hours' '24'
-	replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.zram' global
-	replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.zram' 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' global
+	replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.dummy' 'swapon_all /vendor/etc/fstab.exynos9610' 'swapon_all /vendor/etc/fstab.zram' global
+	replace_string ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.dummy' 'swapon_all /vendor/etc/fstab.sqzr' 'swapon_all /vendor/etc/fstab.zram' global
 	append_file ${VENDOR_INIT_RC} 'swapon_all /vendor/etc/fstab.zram' init.zram.rc
 fi
 
