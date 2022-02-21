@@ -324,12 +324,6 @@ build_package() {
 	script_echo " "
 	script_echo "I: Building kernel ZIP..."
 
-	if [[ ${BUILD_KERNEL_CODE} == "oneui" ]]; then
-		BUILD_PACKAGE_DIR='fresh'
-	else
-		BUILD_PACKAGE_DIR='custom'
-	fi
-
 	# Copy kernel image to package directory
 	mv $(pwd)/arch/arm64/boot/Image $(pwd)/tools/make/package/Image -f
 
@@ -338,8 +332,6 @@ build_package() {
 
 	echo "ro.mint.build.date=${BUILD_DATE}" > $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.build.branch=${BUILD_KERNEL_BRANCH}" >> $(pwd)/tools/make/package/mint.prop
-	echo "ro.mint.build.user=${KBUILD_BUILD_USER}" >> $(pwd)/tools/make/package/mint.prop
-	echo "ro.mint.build.host=${KBUILD_BUILD_HOST}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.device=${BUILD_DEVICE_NAME^}" >> $(pwd)/tools/make/package/mint.prop
 	echo "ro.mint.droid.variant=${FILE_KERNEL_CODE^}" >> $(pwd)/tools/make/package/mint.prop
 
@@ -519,13 +511,6 @@ if [[ ${BUILD_KERNEL_CODE} == 'recovery' ]]; then
 	BUILD_KERNEL_OUTPUT="${ORIGIN_DIR}/Image"
 else
 	BUILD_KERNEL_OUTPUT="${ORIGIN_DIR}/${FILE_OUTPUT}"
-fi
-
-if [[ "${BUILD_RECOVERY}${BUILD_AOSP}${BUILD_FRESH}" == *"truetrue"* ]]; then
-	script_echo "E: Multiple variants selected!"
-	script_echo "   You can only build one kernel variant at a time."
-	script_echo " "
-	show_usage
 fi
 
 if [[ -z ${BUILD_DEVICE_NAME} ]]; then
