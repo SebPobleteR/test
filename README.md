@@ -1,12 +1,12 @@
-![Mint icon](https://i.ibb.co/q14y9Sg/core-readme-icon.png)
+![Mint banner](https://i.ibb.co/9WV53PD/Banner-New-Dark.png)
 
 # Mint
 
-_Freshen up your Galaxy. An optimized, One UI-first kernel for Galaxy devices on the Exynos 9610 platform._
+_Freshen up your Galaxy. A balanced, optimized kernel for Samsung Galaxy devices on the Exynos 9610 platform._
 
 #### Common Mint kernel source for the Exynos 9610 Platform
 
-Supports the following devices:
+Officially supports the following devices:
 
 - Samsung Galaxy A50 (`a50`)
 - Samsung Galaxy A50s (`a50s`)
@@ -15,7 +15,7 @@ Looking for the Linux kernel readme? [Click here.](https://github.com/TenSeventy
 
 ## Source References and Contributors
 
-Mint Kernel will **never** be possible without the unwavering work of these awesome people. I have tried my best to keep their authorships on the commit history. Thank you very much!
+Mint will **never** be possible without the unwavering work of these awesome people. I've tried my best to keep their authorships on the commit history. Thank you very much!
 
  - [Cruel Kernel for the Galaxy S10/Note10](https://github.com/CruelKernel/samsung-exynos9820/) (@evdenis)
  - [ThunderStorms Kernel for the Galaxy S10/Note10](https://github.com/ThunderStorms21th/Galaxy-S10) (@ThunderStorms21th)
@@ -35,15 +35,14 @@ Mint is an optimized kernel source based on Samsung's open-source kernel drops o
 
  - Built with cutting-edge LLVM/Clang (`proton-clang`)
  - Built with Link-Time Optimizations (LTO) enabled
- - Added additional I/O schedulers, `maple` is set as default.
+ - Available with pre-patched, in-kernel Magisk. With full support for Zygisk.
+ - Added additional I/O schedulers, `cfq` is set as default.
  - Various kernel and performance improvements from upstream, and even Qualcomm devices.
  - Backported changes from multiple devices, including newer Galaxy devices.
  - Replaced hardware RNG (HWRandom) with faster SRandom.
- - Support for the Linux Random Number Generator (LRNG).
- - State notifier support for various kernel drivers.
  - Disabled basic Samsung hardening (Knox, etc).
- - DriveDroid support.
- - WireGuard support.
+ - Support for DriveDroid/USB mass storage.
+ - Support for in-kernel WireGuard VPN.
 
 ## How to Install
 
@@ -53,7 +52,7 @@ Mint is an optimized kernel source based on Samsung's open-source kernel drops o
  2. Copy the ZIP file to your SD card if necessary.
  3. Reboot to recovery.
  4. Flash downloaded ZIP.
- 5. Reboot to **System**  instead of recovery.
+ 5. Reboot to **System** instead of recovery.
  6. ???
  7. Profit
 
@@ -63,7 +62,7 @@ If you ever experience issues with lock screen and/or Samsung Account, see below
 
 If you ever experience being locked out after installing any build, with SystemUI restarting after entering your password/PIN, and Samsung Account showing a `Samsung Account logged out` notification, you may have been experiencing the "Pin Problem".
 
-Several builds of TWRP and OrangeFox have a security patch level (SPL) of 2099-12 (December 2099), but this kernel follows the latest SPL available to the device. This causes the device to act up once booted into the kernel.
+Custom recoveries for the Galaxy A50 and A50s have a security patch level (SPL) of 2099-12 (December 2099), but this kernel follows the latest SPL available to the device. This causes the device to act up once booted into the kernel.
 
 Please note that it is **intended behavior** by the system and is **not** a bug.
 
@@ -71,10 +70,10 @@ You can flash PassReset, or wipe your device to fix it.
 
 See [here](https://github.com/CruelKernel/samsung-exynos9820/#pin-problem-cant-login) for more information.
 
- 
+
 ## Building Locally
 
-Local builds of Mint are built using **Ubuntu 20.04 LTS**.  These prerequisites are needed to build with this source:
+Local builds of Mint are built using **Ubuntu 20.04 LTS**. These prerequisites are needed to build with this source:
 
  - libelf-dev
  - bzip2
