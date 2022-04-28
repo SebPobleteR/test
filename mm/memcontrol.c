@@ -82,10 +82,10 @@ struct mem_cgroup *root_mem_cgroup __read_mostly;
 #define MEM_CGROUP_RECLAIM_RETRIES	5
 
 /* Socket memory accounting disabled? */
-static bool cgroup_memory_nosocket;
+static bool cgroup_memory_nosocket = true;
 
 /* Kernel memory accounting disabled? */
-static bool cgroup_memory_nokmem;
+static bool cgroup_memory_nokmem = true;
 
 /* Whether the swap controller is active */
 #ifdef CONFIG_MEMCG_SWAP
@@ -931,7 +931,7 @@ int mem_cgroup_scan_tasks(struct mem_cgroup *memcg,
 /**
  * mem_cgroup_page_lruvec - return lruvec for isolating/putting an LRU page
  * @page: the page
- * @zone: zone of the page
+ * @pgdat: pgdat of the page
  *
  * This function is only safe when following the LRU page isolation
  * and putback protocol: the LRU lock must be held, and the page must
