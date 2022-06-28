@@ -6790,7 +6790,7 @@ schedtune_task_margin(struct task_struct *task)
 		return 0;
 
 	util = task_util_est(task);
-	margin = schedtune_margin(util, boost, SCHED_CAPACITY_SCALE);
+	margin = schedtune_margin(util, boost, get_cpu_max_capacity(task_cpu(task)));
 
 	return margin;
 }
