@@ -75,7 +75,7 @@ static inline unsigned long ontime_load_avg(struct task_struct *p)
 	if (boost == 0)
 		return load_avg;
 
-	return load_avg + schedtune_margin(load_avg, boost, SCHED_CAPACITY_SCALE);
+	return load_avg + schedtune_margin(load_avg, boost, capacity_orig_of(task_cpu(p)));
 }
 
 struct ontime_cond *get_current_cond(int cpu)
