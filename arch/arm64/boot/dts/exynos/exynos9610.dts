@@ -379,12 +379,12 @@
 				/* little cores */
 				coregroup0 {
 					coverage-ratio = <30>;
-					active-ratio = <25>;
+					active-ratio = <50>;
 				};
 				/* big cores */
 				coregroup1 {
 					coverage-ratio = <15>;
-					active-ratio = <5>;
+					active-ratio = <25>;
 				};
 			};
 
