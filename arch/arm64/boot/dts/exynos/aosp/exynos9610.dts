@@ -371,13 +371,13 @@
 			frt {
 				/* little cores */
 				coregroup0 {
-					coverage-ratio = <30>;
-					active-ratio = <25>;
+					coverage-ratio = <40>;
+					active-ratio = <60>;
 				};
 				/* big cores */
 				coregroup1 {
-					coverage-ratio = <15>;
-					active-ratio = <5>;
+					coverage-ratio = <20>;
+					active-ratio = <30>;
 				};
 			};
 
