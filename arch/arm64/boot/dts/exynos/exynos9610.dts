@@ -365,7 +365,7 @@
 				overutil-level0 {
 					cpus =	"0-3",
 						"4-7";
-					ratio =	<DEFAULT_RATIO>,
+					ratio =	<70>,
 						<DEFAULT_RATIO>;
 				};
 				overutil-level1 {
