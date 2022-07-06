@@ -165,7 +165,7 @@ static int frt_find_prefer_cpu(struct task_struct *task)
 	struct frt_dom *dom;
 
 	list_for_each_entry(dom, &frt_list, list) {
-		if (schedtune_prefer_perf(task) && is_slowest_cpu(cpumask_first(&dom->cpus)))
+		if (schedtune_prefer_perf(task) && is_min_cap_cpu(cpumask_first(&dom->cpus)))
 			continue;
 
 		coverage_thr = per_cpu(frt_rqs, cpumask_first(&dom->cpus))->coverage_thr;
@@ -2737,7 +2737,7 @@ static int find_idle_cpu(struct task_struct *task, int wake_flags)
 			if (!idle_cpu(cpu))
 				continue;
 
-			if (prefer_perf && is_slowest_cpu(cpu))
+			if (prefer_perf && is_min_cap_cpu(cpu))
 				continue;
 
 			cpu_prio = cpu_rq(cpu)->rt.highest_prio.curr;
@@ -2797,7 +2797,7 @@ static int find_recessive_cpu(struct task_struct *task, int wake_flags)
 
 	do {
 		for_each_cpu_and(cpu, &dom->cpus, &candidate_cpus) {
-			if (prefer_perf && is_slowest_cpu(cpu))
+			if (prefer_perf && is_min_cap_cpu(cpu))
 				continue;
 
 			cpu_load = frt_cpu_util_wake(cpu, task) + task_util(task);
@@ -2863,7 +2863,7 @@ static int find_lowest_rq_fluid(struct task_struct *task, int wake_flags)
 		if (cpu != cpumask_first(cpu_coregroup_mask(cpu)))
 			continue;
 
-		if (prefer_perf && is_slowest_cpu(cpu))
+		if (prefer_perf && is_min_cap_cpu(cpu))
 			continue;
 
 		if (find_victim_rt_rq(task, cpu_coregroup_mask(cpu), &best_cpu) != -1)
