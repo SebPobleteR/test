@@ -191,3 +191,7 @@ scripts/sortextable
 
 # allow .github - for actions
 !.github
+
+# working on Windows
+desktop.ini
+
