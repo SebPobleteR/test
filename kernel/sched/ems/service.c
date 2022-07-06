@@ -124,7 +124,7 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 
 		if ((cpu_selected(best_perf_cpu) ||
 		     cpu_selected(backup_cpu)) &&
-		    is_slowest_cpu(cpumask_first(&mask)))
+		    is_min_cap_cpu(cpumask_first(&mask)))
 			continue;
 
 		for_each_cpu_and(cpu, &p->cpus_allowed, &mask) {

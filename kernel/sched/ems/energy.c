@@ -41,7 +41,7 @@ struct energy_table {
 };
 DEFINE_PER_CPU(struct energy_table, energy_table);
 
-bool is_slowest_cpu(int cpu)
+bool is_min_cap_cpu(int cpu)
 {
 	struct energy_table *table = &per_cpu(energy_table, cpu);
 
