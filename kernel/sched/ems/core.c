@@ -195,6 +195,13 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 			if (new_util > capacity_orig)
 				continue;
 
+			/*
+			 * Pre-compute the maximum possible capacity we expect
+			 * to have available on this CPU once the task is
+			 * enqueued here.
+			 */
+			spare_util = capacity_orig - new_util;
+
 			if (idle_cpu(i)) {
 				int idle_idx = idle_get_state_idx(cpu_rq(i));
 
@@ -226,7 +233,8 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 			 * with smallest cpapacity or highest spare capacity
 			 * and the least utilization among cpus that fits the task.
 			 */
-			spare_util = capacity_orig - new_util;
+
+			/* Favor CPUs with maximum spare capacity */
 			if (spare_util <= best_spare_util)
 				continue;
 
