@@ -165,6 +165,7 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 {
 	int cpu;
 	unsigned long best_spare_util = 0;
+	unsigned long target_capacity = ULONG_MAX;
 	unsigned long best_active_util = ULONG_MAX;
 	unsigned long best_idle_util = ULONG_MAX;
 	int best_idle_cstate = INT_MAX;
@@ -196,6 +197,10 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 			if (new_util > capacity_orig)
 				continue;
 
+			/* Favor CPUs with smaller capacity for non latency sensitive tasks. */
+			if (capacity_orig > target_capacity)
+				continue;
+
 			/*
 			 * Pre-compute the maximum possible capacity we expect
 			 * to have available on this CPU once the task is
@@ -207,17 +212,20 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 				int idle_idx = idle_get_state_idx(cpu_rq(i));
 
 				/* find shallowest idle state cpu */
-				if (idle_idx > best_idle_cstate)
+				if (capacity_orig == target_capacity &&
+					idle_idx > best_idle_cstate)
 					continue;
 
 				/* if same cstate, select lower util */
-				if (idle_idx == best_idle_cstate &&
+				if (capacity_orig == target_capacity &&
+					idle_idx == best_idle_cstate &&
 				    (best_idle_cpu == prev_cpu ||
 				    (i != prev_cpu &&
 				    new_util >= best_idle_util)))
 					continue;
 
 				/* Keep track of best idle CPU */
+				target_capacity = capacity_orig;
 				best_idle_cstate = idle_idx;
 				best_idle_util = new_util;
 				best_idle_cpu = i;
@@ -236,11 +244,13 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 			 */
 
 			/* Favor CPUs with maximum spare capacity */
-			if (spare_util <= best_spare_util)
+			if (capacity_orig == target_capacity &&
+				spare_util <= best_spare_util)
 				continue;
 
-			best_active_util = new_util;
 			best_spare_util = spare_util;
+			target_capacity = capacity_orig;
+			best_active_util = new_util;
 			best_active_cpu = i;
 		}
 
