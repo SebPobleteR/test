@@ -32,34 +32,62 @@ int prefer_perf_cpu(struct task_struct *p)
 /**********************************************************************
  *                            Prefer Idle                             *
  **********************************************************************/
-static bool mark_lowest_idle_util_cpu(int cpu, unsigned long new_util,
-			int *lowest_idle_util_cpu, unsigned long *lowest_idle_util)
+static bool mark_lowest_idle_util_cpu(int cpu, unsigned long new_util, unsigned long capacity_orig,
+			int *lowest_idle_cpu, unsigned long *lowest_idle_util, int *lowest_idle_cstate,
+			unsigned long *target_capacity)
 {
+	int idle_idx;
+
 	if (!idle_cpu(cpu))
 		return false;
 
-	if (new_util >= *lowest_idle_util)
+	if (capacity_orig > *target_capacity)
+		return true;
+
+	idle_idx = idle_get_state_idx(cpu_rq(cpu));
+
+	/* find shallowest idle state cpu */
+	if (idle_idx > *lowest_idle_cstate)
+		return true;
+
+	/* if same cstate, select lower util */
+	if (idle_idx == *lowest_idle_cstate &&
+		new_util >= *lowest_idle_util)
 		return false;
 
 	*lowest_idle_util = new_util;
-	*lowest_idle_util_cpu = cpu;
+	*lowest_idle_cstate = idle_idx;
+	*lowest_idle_cpu = cpu;
+	*target_capacity = capacity_orig;
 
 	return true;
 }
 
-static bool mark_lowest_util_cpu(int cpu, unsigned long new_util,
-			int *lowest_util_cpu, unsigned long *lowest_util,
-			unsigned long *target_capacity)
+static bool mark_highest_spare_cpu(int cpu, unsigned long new_util, unsigned long capacity_orig,
+			int *highest_spare_cpu, unsigned long *highest_spare_util)
 {
-	if (capacity_orig_of(cpu) > *target_capacity)
+	unsigned long spare_util = capacity_orig - new_util;
+
+	if (capacity_curr_of(cpu) <= new_util)
+		return false;
+	
+	if (spare_util <= *highest_spare_util)
 		return false;
 
+	*highest_spare_util = spare_util;
+	*highest_spare_cpu = cpu;
+	
+	return true;
+}
+
+static bool mark_lowest_util_cpu(int cpu, unsigned long new_util,
+			int *lowest_util_cpu, unsigned long *lowest_util)
+{
 	if (new_util >= *lowest_util)
 		return false;
 
 	*lowest_util = new_util;
 	*lowest_util_cpu = cpu;
-	*target_capacity = capacity_orig_of(cpu);
 
 	return true;
 }
@@ -67,9 +95,12 @@ static bool mark_lowest_util_cpu(int cpu, unsigned long new_util,
 static int select_idle_cpu(struct task_struct *p)
 {
 	unsigned long lowest_idle_util = ULONG_MAX;
+	unsigned long highest_spare_util = 0;
 	unsigned long lowest_util = ULONG_MAX;
 	unsigned long target_capacity = ULONG_MAX;
-	int lowest_idle_util_cpu = -1;
+	int lowest_idle_cstate = INT_MAX;
+	int lowest_idle_cpu = -1;
+	int highest_spare_cpu = -1;
 	int lowest_util_cpu = -1;
 	int target_cpu = -1;
 	int cpu;
@@ -95,18 +126,29 @@ static int select_idle_cpu(struct task_struct *p)
 				continue;
 
 			/* Priority #1 : idle cpu with lowest util */
-			if (mark_lowest_idle_util_cpu(i, new_util,
-				&lowest_idle_util_cpu, &lowest_idle_util))
+			if (mark_lowest_idle_util_cpu(i, new_util, capacity_orig,
+				&lowest_idle_cpu, &lowest_idle_util, &lowest_idle_cstate, &target_capacity))
 				continue;
 
-			/* Priority #2 : active cpu with lowest util */
+			/* Priority #2 : active cpu with highest spare */
+			if (mark_highest_spare_cpu(i, new_util, capacity_orig,
+				&highest_spare_cpu, &highest_spare_util))
+				continue;
+
+			/* Priority #3 : active cpu with lowest util */
 			mark_lowest_util_cpu(i, new_util,
-				&lowest_util_cpu, &lowest_util, &target_capacity);
+				&lowest_util_cpu, &lowest_util);
 		}
 
-		if (cpu_selected(lowest_idle_util_cpu)) {
+		if (cpu_selected(lowest_idle_cpu)) {
 			strcpy(state, "lowest_idle_util");
-			target_cpu = lowest_idle_util_cpu;
+			target_cpu = lowest_idle_cpu;
+			break;
+		}
+
+		if (cpu_selected(highest_spare_cpu)) {
+			strcpy(state, "highest_spare_util");
+			target_cpu = highest_spare_cpu;
 			break;
 		}
 

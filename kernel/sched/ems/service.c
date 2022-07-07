@@ -101,7 +101,6 @@ static struct prefer_perf *find_prefer_perf(int boost)
 	return NULL;
 }
 
-extern unsigned long capacity_curr_of(int cpu);
 static int
 select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *prefer_cpus)
 {
