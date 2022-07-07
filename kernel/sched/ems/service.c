@@ -106,7 +106,6 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 {
 	struct cpumask mask;
 	int coregroup, cpu;
-	unsigned long tsk_util = task_util(p);
 	unsigned long best_perf_util = ULONG_MAX;
 	unsigned long max_spare_cap = 0;
 	int best_perf_cstate = INT_MAX;
@@ -135,7 +134,7 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 
 			capacity_orig = capacity_orig_of(cpu);
 			wake_util = cpu_util_wake(cpu, p);
-			new_util = wake_util + tsk_util;
+			new_util = wake_util + task_util_est(p);
 			new_util += cpu_rq(cpu)->rt.avg.util_avg;
 			new_util = max(new_util, boosted_task_util(p));
 
