@@ -21,11 +21,12 @@ int select_perf_cpu(struct task_struct *p)
 	int cpu;
 	unsigned long best_perf_cap_orig = 0;
 	unsigned long best_perf_util = ULONG_MAX;
-	unsigned long max_spare_cap = 0;
+	unsigned long best_spare_util = 0;
+	unsigned long best_active_util = ULONG_MAX;
 	int best_perf_cstate = INT_MAX;
 	int best_perf_cpu = -1;
+	int best_spare_cpu = -1;
 	int best_active_cpu = -1;
-	int backup_cpu = -1;
 
 	rcu_read_lock();
 
@@ -34,7 +35,7 @@ int select_perf_cpu(struct task_struct *p)
 		unsigned long capacity_curr;
 		unsigned long wake_util = cpu_util_wake(cpu, p);
 		unsigned long new_util;
-		unsigned long spare_cap;
+		unsigned long spare_util;
 
 		new_util = wake_util + task_util_est(p);
 		new_util += cpu_rq(cpu)->rt.avg.util_avg;
@@ -98,27 +99,35 @@ int select_perf_cpu(struct task_struct *p)
 		 * computations. Since a high performance cpu has a large capacity,
 		 * cpu having a high performance is likely to be selected.
 		 */
-		spare_cap = capacity_orig - new_util;
+		spare_util = capacity_orig - new_util;
 		capacity_curr = capacity_curr_of(cpu);
-		
-		if (spare_cap > max_spare_cap) {
-			max_spare_cap = spare_cap;
-			backup_cpu = cpu;
 
-			if (capacity_curr > new_util)
-				best_active_cpu = cpu;
+		if (capacity_curr > new_util &&
+			spare_util > best_spare_util) {
+			best_spare_util = spare_util;
+			best_spare_cpu = cpu;
+			continue;
 		}
+
+		if (cpu_selected(best_spare_cpu))
+			continue;
+
+		if (new_util >= best_active_util)
+			continue;
+
+		best_active_util = new_util;
+		best_active_cpu =  cpu;
 	}
 
 	rcu_read_unlock();
 
-	if (!cpu_selected(best_active_cpu))
-		best_active_cpu = backup_cpu;
+	if (!cpu_selected(best_spare_cpu))
+		best_spare_cpu = best_active_cpu;
 
-	trace_ems_select_perf_cpu(p, best_perf_cpu, best_active_cpu);
+	trace_ems_select_perf_cpu(p, best_perf_cpu, best_spare_cpu);
 
 	if (best_perf_cpu == -1)
-		return best_active_cpu;
+		return best_spare_cpu;
 
 	return best_perf_cpu;
 }

@@ -107,11 +107,12 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 	struct cpumask mask;
 	int coregroup, cpu;
 	unsigned long best_perf_util = ULONG_MAX;
-	unsigned long max_spare_cap = 0;
+	unsigned long best_spare_util = 0;
+	unsigned long best_active_util = ULONG_MAX;
 	int best_perf_cstate = INT_MAX;
-	int best_active_cpu = -1;
 	int best_perf_cpu = -1;
-	int backup_cpu = -1;
+	int best_spare_cpu = -1;
+	int best_active_cpu = -1;
 
 	rcu_read_lock();
 
@@ -121,12 +122,12 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 			continue;
 
 		if ((cpu_selected(best_perf_cpu) ||
-		     cpu_selected(backup_cpu)) &&
+		     cpu_selected(best_active_cpu)) &&
 		    is_min_cap_cpu(cpumask_first(&mask)))
 			continue;
 
 		for_each_cpu_and(cpu, &p->cpus_allowed, &mask) {
-			unsigned long spare_cap;
+			unsigned long spare_util;
 			unsigned long capacity_curr;
 			unsigned long capacity_orig;
 			unsigned long wake_util;
@@ -164,25 +165,34 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 			if (cpu_selected(best_perf_cpu))
 				continue;
 
-			spare_cap = capacity_orig - new_util;
+			spare_util = capacity_orig - new_util;
 			capacity_curr = capacity_curr_of(cpu);
-			if (spare_cap > max_spare_cap) {
-				max_spare_cap = spare_cap;
-				backup_cpu = cpu;
 
-				if (capacity_curr > new_util)
-					best_active_cpu = cpu;
+			if (capacity_curr > new_util &&
+				spare_util > best_spare_util) {
+				best_spare_util = spare_util;
+				best_spare_cpu = cpu;
+				continue;
 			}
+
+			if (cpu_selected(best_spare_cpu))
+				continue;
+
+			if (new_util >= best_active_util)
+				continue;
+
+			best_active_util = new_util;
+			best_active_cpu =  cpu;
 		}
 	}
 
 	rcu_read_unlock();
 
-	if (!cpu_selected(best_active_cpu))
-		best_active_cpu = backup_cpu;
+	if (!cpu_selected(best_spare_cpu))
+		best_spare_cpu = best_active_cpu;
 
 	if (best_perf_cpu == -1)
-		return best_active_cpu;
+		return best_spare_cpu;
 
 	return best_perf_cpu;
 }
