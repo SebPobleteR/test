@@ -444,8 +444,8 @@ static inline int schedtune_ux_task(struct task_struct *p, int orig)
 	char name_buf[NAME_MAX + 1];
 	int adj = p->signal->oom_score_adj;
 
-	/* We only care about adj == 0 */
-	if (adj != 0)
+	/* We only care about adj == 0 and System UI */
+	if (adj != 0 && (strncmp(p->comm, "ndroid.systemui", 15)))
 		return orig;
 
 	/* Don't touch kthreads */
