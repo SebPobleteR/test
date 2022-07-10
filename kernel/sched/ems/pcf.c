@@ -67,6 +67,7 @@ int select_perf_cpu(struct task_struct *p)
 			 */
 			if (capacity_orig > best_perf_cap_orig) {
 				best_perf_cap_orig = capacity_orig;
+				best_perf_util = ULONG_MAX;
 				best_perf_cstate = INT_MAX;
 			}
 
