@@ -16,6 +16,7 @@
 #include <uapi/linux/sched/types.h>
 #include <linux/slab.h>
 #include <linux/cpu_pm.h>
+#include <linux/state_notifier.h>
 
 #include <trace/events/power.h>
 
@@ -459,7 +460,8 @@ static void sugov_set_iowait_boost(struct sugov_cpu *sg_cpu, u64 time,
 {
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
 
-	if (!sg_policy->tunables->iowait_boost_enable)
+	if (state_suspended ||
+		!sg_policy->tunables->iowait_boost_enable)
 		return;
 
 	if (sg_cpu->iowait_boost) {
