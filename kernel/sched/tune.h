@@ -39,3 +39,5 @@ void schedtune_dequeue_task(struct task_struct *p, int cpu);
 #define schedtune_dequeue_task(task, cpu) do { } while (0)
 
 #endif /* CONFIG_SCHED_TUNE */
+
+inline int ems_sched_ux_task(struct task_struct *p, int affine);

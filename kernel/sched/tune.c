@@ -443,29 +443,65 @@ int schedtune_cpu_boost(int cpu)
 	return bg->boost_max;
 }
 
-static inline int schedtune_adj_ta(struct task_struct *p)
+#ifdef CONFIG_SCHED_EMS
+
+/* essential threads for UI rendering */
+#define MALI_THREAD_NAME "mali-cmar-backe"
+#define RENDER_THREAD_NAME "RenderThread"
+#define DISPLAY_THREAD_NAME "android.display"
+#define UI_THREAD_NAME "android.ui"
+
+#define SYSTEMUI_THREAD_NAME "ndroid.systemui"
+
+inline int ems_sched_ux_task(struct task_struct *p, int affine)
 {
-	struct schedtune *st;
-	char name_buf[NAME_MAX + 1];
-	int adj = p->signal->oom_score_adj;
+    struct schedtune *st;
+    char name_buf[NAME_MAX + 1];
+    int adj = p->signal->oom_score_adj;
+    
+    struct task_struct *leader;
+    int leader_adj;
+    bool affine_leader = false;
 
-	/* We only care about adj == 0 */
-	if (adj != 0)
-		return 0;
+    if (affine) {
+    	leader = p->group_leader;
+    	leader_adj = leader->signal->oom_score_adj;
+    	affine_leader = leader_adj == 0 || strncmp(leader->comm, SYSTEMUI_THREAD_NAME, 15);
 
-	/* Don't touch kthreads */
-	if (p->flags & PF_KTHREAD)
-		return 0;
+	    /* These are important tasks that run the UX, boost them. */
+	    if (affine_leader && (!strncmp(p->comm, MALI_THREAD_NAME, 15) ||
+	        !strncmp(p->comm, RENDER_THREAD_NAME, 12)))
+	            return 1;
+    }
 
-	st = task_schedtune(p);
-	cgroup_name(st->css.cgroup, name_buf, sizeof(name_buf));
-	if (!strncmp(name_buf, "top-app", strlen("top-app"))) {
-		pr_debug("top app is %s with adj %i\n", p->comm, adj);
-		return 1;
-	}
+	if (affine && (!strncmp(p->comm, DISPLAY_THREAD_NAME, 15) ||
+	    !strncmp(p->comm, UI_THREAD_NAME, 10)))
+	    return 1;
 
-	return 0;
+    /* Don't touch kthreads */
+    if (p->flags & PF_KTHREAD)
+        return 0;
+
+    /* We only care about adj == 0 */
+    /* SystemUI is also UX task if top-app */
+    if (adj != 0 && (affine && strncmp(p->comm, SYSTEMUI_THREAD_NAME, 15)))
+        return 0;
+
+    st = task_schedtune(p);
+    cgroup_name(st->css.cgroup, name_buf, sizeof(name_buf));
+    if (!strncmp(name_buf, "top-app", strlen("top-app"))) {
+        pr_debug("top app is %s with adj %i\n", p->comm, adj);
+        return 1;
+    }
+
+    return 0;
 }
+#else
+static inline int ems_sched_ux_task(struct task_struct *p, int affine)
+{
+    return 0;
+}
+#endif
 
 int schedtune_task_boost(struct task_struct *p)
 {
@@ -478,7 +514,7 @@ int schedtune_task_boost(struct task_struct *p)
 	/* Get task boost value */
 	rcu_read_lock();
 	st = task_schedtune(p);
-	task_boost = max(st->boost, schedtune_adj_ta(p));
+	task_boost = max(st->boost, ems_sched_ux_task(p, 0));
 	rcu_read_unlock();
 
 	return task_boost;
