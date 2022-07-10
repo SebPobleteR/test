@@ -548,6 +548,23 @@ int schedtune_prefer_perf(struct task_struct *p)
 	return prefer_perf;
 }
 
+int schedtune_kpp_status(struct task_struct *p)
+{
+	struct schedtune *st;
+	int kernel_prefer_perf;
+
+	if (unlikely(!schedtune_initialized))
+		return 0;
+
+	/* Get task boost value */
+	rcu_read_lock();
+	st = task_schedtune(p);
+	kernel_prefer_perf = kpp_status(st->idx);
+	rcu_read_unlock();
+
+	return kernel_prefer_perf;
+}
+
 static u64
 util_est_en_read(struct cgroup_subsys_state *css, struct cftype *cft)
 {
