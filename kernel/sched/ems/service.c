@@ -113,7 +113,7 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 	int best_active_cpu = -1;
 	int best_perf_cpu = -1;
 	int backup_cpu = -1;
-	bool boosted = (schedtune_task_boost(p) > 0);
+	bool boosted = ((schedtune_task_boost(p) > 0) || (schedtune_kpp_status(p) > 0));
 
 	rcu_read_lock();
 
