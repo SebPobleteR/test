@@ -151,7 +151,7 @@ bool is_cpu_preemptible(struct task_struct *p, int prev_cpu, int cpu, int sync)
 	struct task_struct *curr = READ_ONCE(rq->curr);
 
 	if (!is_min_cap_cpu(cpu) &&
-	    curr && schedtune_task_boost(curr) > 0)
+	    curr && ((schedtune_kpp_status(curr) > 0) || (schedtune_task_boost(curr) > 0)))
 		return false;
 #endif
 
