@@ -56,7 +56,7 @@ static void damon_pa_mkold(unsigned long paddr)
 	if (need_lock && !trylock_page(page))
 		goto out;
 
-	rmap_walk(page, &rwc);
+	rmap_walk(page, &rwc, NULL);
 
 	if (need_lock)
 		unlock_page(page);
@@ -159,7 +159,7 @@ static bool damon_pa_young(unsigned long paddr, unsigned long *page_sz)
 		return NULL;
 	}
 
-	rmap_walk(page, &rwc);
+	rmap_walk(page, &rwc, NULL);
 
 	if (need_lock)
 		unlock_page(page);
