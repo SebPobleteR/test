@@ -33,7 +33,7 @@ int prefer_perf_cpu(struct task_struct *p)
  *                            Prefer Idle                             *
  **********************************************************************/
 static bool mark_lowest_idle_util_cpu(int cpu, unsigned long new_util, unsigned long capacity_orig,
-			int *lowest_idle_cpu, unsigned long *lowest_idle_util, int *lowest_idle_cstate,
+			int *lowest_idle_cpu, unsigned long *lowest_idle_util, int *lowest_idle_cstate, int boosted,
 			unsigned long *target_capacity)
 {
 	int idle_idx;
@@ -41,7 +41,12 @@ static bool mark_lowest_idle_util_cpu(int cpu, unsigned long new_util, unsigned 
 	if (!idle_cpu(cpu))
 		return false;
 
-	if (capacity_orig > *target_capacity)
+	if (boosted &&
+		capacity_orig < *target_capacity)
+		return true;
+
+	if (!boosted &&
+		capacity_orig > *target_capacity)
 		return true;
 
 	idle_idx = idle_get_state_idx(cpu_rq(cpu));
@@ -107,7 +112,11 @@ static int select_idle_cpu(struct task_struct *p)
 	int target_cpu = -1;
 	int cpu;
 	int i;
+	bool boosted = schedtune_task_boost(p) > 0;
 	char state[30] = "prev_cpu";
+
+	if (boosted)
+		target_capacity = 0;
 
 	for_each_cpu(cpu, cpu_active_mask) {
 		if (cpu != cpumask_first(cpu_coregroup_mask(cpu)))
@@ -129,7 +138,8 @@ static int select_idle_cpu(struct task_struct *p)
 
 			/* Priority #1 : idle cpu with lowest util */
 			if (mark_lowest_idle_util_cpu(i, new_util, capacity_orig,
-				&lowest_idle_cpu, &lowest_idle_util, &lowest_idle_cstate, &target_capacity))
+				&lowest_idle_cpu, &lowest_idle_util, &lowest_idle_cstate, boosted,
+				&target_capacity))
 				continue;
 
 			/* Priority #2 : active cpu with highest spare */
