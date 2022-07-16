@@ -142,9 +142,15 @@ static int select_idle_cpu(struct task_struct *p)
 				&target_capacity))
 				continue;
 
+			if (lowest_idle_cpu != -1)
+				continue;
+
 			/* Priority #2 : active cpu with highest spare */
 			if (mark_highest_spare_cpu(i, new_util, capacity_orig,
 				&highest_spare_cpu, &highest_spare_util))
+				continue;
+
+			if (highest_spare_cpu != -1)
 				continue;
 
 			/* Priority #3 : active cpu with lowest util */
