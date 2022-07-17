@@ -209,22 +209,17 @@ ontime_select_target_cpu(struct task_struct *p, struct cpumask *fit_cpus)
 
 			if (idle_cpu(i)) {
 				/* 1. Find shallowest idle_cpu */
-				struct cpuidle_state *idle = idle_get_state(cpu_rq(cpu));
+				int idle_idx = idle_get_state_idx(cpu_rq(cpu));
 
-				if (!idle) {
-					best_cpu = i;
-					break;
-				}
-
-				if (idle->exit_latency > min_exit_latency)
+				if (idle_idx > min_exit_latency)
 					continue;
 
 				/* if same cstate, select lower util */
-				if (idle->exit_latency == min_exit_latency &&
+				if (idle_idx == min_exit_latency &&
 					wake_util >= min_idle_util)
 					continue;
 
-				min_exit_latency = idle->exit_latency;
+				min_exit_latency = idle_idx;
 				min_idle_util = wake_util;
 				best_cpu = i;
 			} else {
