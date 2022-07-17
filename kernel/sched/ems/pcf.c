@@ -62,12 +62,14 @@ int select_perf_cpu(struct task_struct *p)
 
 			/*
 			 * if we find a better-performing cpu, re-initialize
-			 * best_perf_cstate
+			 * best_perf_util and best_perf_cstate
 			 */
 			if (capacity_orig > best_perf_cap_orig) {
 				best_perf_cap_orig = capacity_orig;
-				best_perf_util = ULONG_MAX;
-				best_perf_cstate = INT_MAX;
+				best_perf_util = wake_util;
+				best_perf_cstate = idle_idx;
+				best_perf_cpu = cpu;
+				continue;
 			}
 
 			/* find shallowest idle state cpu */
