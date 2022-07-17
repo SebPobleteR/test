@@ -63,7 +63,6 @@ static DEFINE_MUTEX(input_lock);
 int hmp_boost_value = INIT_ZERO;
 
 static struct kpp kpp_ta;
-static struct kpp kpp_fg;
 
 #define set_hmp(enable) { \
 	mutex_lock(&input_lock); \
@@ -77,11 +76,9 @@ static struct kpp kpp_fg;
 			if (enable) { \
 				hmp_boost_value++; \
 				kpp_request(STUNE_TOPAPP, &kpp_ta, 1); \
-				kpp_request(STUNE_FOREGROUND, &kpp_fg, 1); \
 			} else { \
 				hmp_boost_value--; \
 				kpp_request(STUNE_TOPAPP, &kpp_ta, 0); \
-				kpp_request(STUNE_FOREGROUND, &kpp_fg, 0); \
 			} \
 			current_hmp_boost = enable; \
 		} \
