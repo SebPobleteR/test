@@ -36,6 +36,10 @@ int select_perf_cpu(struct task_struct *p)
 		unsigned long new_util;
 		unsigned long spare_cap;
 
+		/* Avoid CPUs where migration is taking place */
+		if (cpu_rq(cpu)->ontime_migrating)
+			continue;
+
 		new_util = wake_util + task_util_est(p);
 		new_util = max(new_util, boosted_task_util(p));
 

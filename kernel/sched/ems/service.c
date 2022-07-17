@@ -132,6 +132,10 @@ select_prefer_cpu(struct task_struct *p, int coregroup_count, struct cpumask *pr
 			unsigned long wake_util;
 			unsigned long new_util;
 
+			/* Avoid CPUs where migration is taking place */
+			if (cpu_rq(cpu)->ontime_migrating)
+				continue;
+
 			capacity_orig = capacity_orig_of(cpu);
 			wake_util = cpu_util_wake(cpu, p);
 			new_util = wake_util + task_util_est(p);
