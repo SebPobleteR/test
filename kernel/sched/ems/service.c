@@ -200,7 +200,7 @@ int select_service_cpu(struct task_struct *p)
 	if (!prefer_perf_services)
 		return -1;
 
-	boost = schedtune_prefer_high_cap(p);
+	boost = max(ems_sched_ux_task(p, 1), schedtune_prefer_high_cap(p));
 	if (boost <= 0)
 		return -1;
 
