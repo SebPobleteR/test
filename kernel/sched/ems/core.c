@@ -143,19 +143,21 @@ int exynos_need_active_balance(enum cpu_idle_type idle, struct sched_domain *sd,
 	return unlikely(sd->nr_balance_failed > sd->cache_nice_tries + 2);
 }
 
-extern int wake_cap(struct task_struct *p, int cpu, int prev_cpu);
-bool is_cpu_preemptible(struct task_struct *p, int prev_cpu, int cpu, int sync)
+inline bool is_cpu_preemptible(struct task_struct *p, int prev_cpu, int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
-#ifdef CONFIG_SCHED_TUNE
 	struct task_struct *curr = READ_ONCE(rq->curr);
 
-	if (!is_min_cap_cpu(cpu) &&
-	    curr && schedtune_prefer_high_cap(curr) > 0)
-		return false;
-#endif
+	/* There's no task running here (idle, probably). We're good to preempt */
+	if (!curr)
+		return true;
 
-	if (sync && (rq->nr_running != 1 || wake_cap(p, cpu, prev_cpu)))
+	/* Don't preempt task currently in the UX during interaction */
+	if (ems_sched_ux_task(p, 0) && schedtune_prefer_high_cap(curr) > 0)
+		return false;
+
+	/* Otherwise, don't preempt tasks in the big cluster during interaction */
+	if (!is_min_cap_cpu(cpu) && schedtune_prefer_high_cap(curr) > 0)
 		return false;
 
 	return true;
@@ -258,7 +260,7 @@ static int select_proper_cpu(struct task_struct *p, int prev_cpu)
 		 * coregroup.
 		 */
 		if (cpu_selected(best_active_cpu) &&
-		    is_cpu_preemptible(p, -1, best_active_cpu, 0)) {
+		    is_cpu_preemptible(p, -1, best_active_cpu)) {
 			best_cpu = best_active_cpu;
 			break;
 		}
