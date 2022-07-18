@@ -165,7 +165,7 @@ static int frt_find_prefer_cpu(struct task_struct *task)
 	struct frt_dom *dom;
 
 	list_for_each_entry(dom, &frt_list, list) {
-		if (schedtune_prefer_high_cap(task) && is_min_cap_cpu(cpumask_first(&dom->cpus)))
+		if (max(ems_sched_ux_task(task, 1), schedtune_prefer_high_cap(task)) && is_min_cap_cpu(cpumask_first(&dom->cpus)))
 			continue;
 
 		coverage_thr = per_cpu(frt_rqs, cpumask_first(&dom->cpus))->coverage_thr;
@@ -2720,7 +2720,7 @@ static int find_idle_cpu(struct task_struct *task, int wake_flags)
 	u64 cpu_load, min_load = ULLONG_MAX;
 	struct cpumask candidate_cpus;
 	struct frt_dom *dom, *prefer_dom;
-	bool prefer_high_cap = schedtune_prefer_high_cap(task) > 0;
+	bool high_cap_or_ux = max(ems_sched_ux_task(task, 1), schedtune_prefer_high_cap(task)) > 0;
 
 	cpu = frt_find_prefer_cpu(task);
 	prefer_dom = dom = per_cpu(frt_rqs, cpu);
@@ -2737,7 +2737,7 @@ static int find_idle_cpu(struct task_struct *task, int wake_flags)
 			if (!idle_cpu(cpu))
 				continue;
 
-			if (prefer_high_cap && is_min_cap_cpu(cpu))
+			if (high_cap_or_ux && is_min_cap_cpu(cpu))
 				continue;
 
 			cpu_prio = cpu_rq(cpu)->rt.highest_prio.curr;
@@ -2777,7 +2777,7 @@ static int find_recessive_cpu(struct task_struct *task, int wake_flags)
 	struct cpumask *lowest_mask;
 	struct cpumask candidate_cpus;
 	struct frt_dom *dom, *prefer_dom;
-	bool prefer_high_cap = schedtune_prefer_high_cap(task) > 0;
+	bool high_cap_or_ux = max(ems_sched_ux_task(task, 1), schedtune_prefer_high_cap(task)) > 0;
 
 	lowest_mask = this_cpu_cpumask_var_ptr(local_cpu_mask);
 	/* Make sure the mask is initialized first */
@@ -2797,7 +2797,7 @@ static int find_recessive_cpu(struct task_struct *task, int wake_flags)
 
 	do {
 		for_each_cpu_and(cpu, &dom->cpus, &candidate_cpus) {
-			if (prefer_high_cap && is_min_cap_cpu(cpu))
+			if (high_cap_or_ux && is_min_cap_cpu(cpu))
 				continue;
 
 			cpu_load = frt_cpu_util_wake(cpu, task) + task_util(task);
@@ -2829,7 +2829,7 @@ static int find_recessive_cpu(struct task_struct *task, int wake_flags)
 
 static int find_lowest_rq_fluid(struct task_struct *task, int wake_flags)
 {
-	bool prefer_high_cap = schedtune_prefer_high_cap(task) > 0;
+	bool high_cap_or_ux = max(ems_sched_ux_task(task, 1), schedtune_prefer_high_cap(task));
 	int cpu, best_cpu = -1;
 
 	if (task->nr_cpus_allowed == 1) {
@@ -2863,7 +2863,7 @@ static int find_lowest_rq_fluid(struct task_struct *task, int wake_flags)
 		if (cpu != cpumask_first(cpu_coregroup_mask(cpu)))
 			continue;
 
-		if (prefer_high_cap && is_min_cap_cpu(cpu))
+		if (high_cap_or_ux && is_min_cap_cpu(cpu))
 			continue;
 
 		if (find_victim_rt_rq(task, cpu_coregroup_mask(cpu), &best_cpu) != -1)
